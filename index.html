@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Orologio</title>
+    <title>Widget Meteo</title>
     <style>
         body {
             display: flex;
@@ -12,27 +12,55 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            background: #f0f0f0;
         }
-        .clock {
-            font-size: 3rem;
+        .weather-widget {
+            text-align: center;
+            background: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .weather-widget h2 {
+            margin: 0;
+        }
+        .weather-widget p {
+            margin: 5px 0;
         }
     </style>
 </head>
 <body>
-    <div class="clock" id="clock"></div>
+    <div class="weather-widget" id="weather">
+        <h2>Meteo</h2>
+        <p>Caricamento...</p>
+    </div>
 
     <script>
-        function updateClock() {
-            const clockElement = document.getElementById('clock');
-            const now = new Date();
-            const hours = now.getHours().toString().padStart(2, '0');
-            const minutes = now.getMinutes().toString().padStart(2, '0');
-            const seconds = now.getSeconds().toString().padStart(2, '0');
-            clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+        const apiKey = '387db697aede451f61163922880d0fb9'; // Sostituisci con la tua chiave API di OpenWeatherMap
+        const city = 'Roma'; // Sostituisci con la tua città
+        const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric&lang=it`;
+
+        async function fetchWeather() {
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+            return data;
         }
 
-        setInterval(updateClock, 1000);
-        updateClock(); // Initial call
+        function displayWeather(data) {
+            const weatherElement = document.getElementById('weather');
+            weatherElement.innerHTML = `
+                <h2>${data.name}</h2>
+                <p>${data.weather[0].description}</p>
+                <p>Temperatura: ${data.main.temp}°C</p>
+                <p>Umidità: ${data.main.humidity}%</p>
+                <p>Vento: ${data.wind.speed} m/s</p>
+            `;
+        }
+
+        fetchWeather().then(data => displayWeather(data)).catch(error => {
+            console.error('Errore nel recuperare i dati meteo:', error);
+            document.getElementById('weather').innerHTML = '<p>Impossibile caricare i dati meteo.</p>';
+        });
     </script>
 </body>
 </html>
